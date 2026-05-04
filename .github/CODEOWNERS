@@ -1,0 +1,10 @@
+# Default owners — equipo aprobador humano (pendiente de definir miembros).
+# Regla dura del proyecto: ningún agente / bot / GitHub App puede aprobar ni mergear PRs.
+# Ver ULTRAPLAN.md §7 R1 y §8 "Política de aprobación".
+
+* @stadibox/super-agente-stadi-approvers
+
+# Cambios al ULTRAPLAN o a la política requieren además al owner del proyecto.
+ULTRAPLAN.md @paco
+.github/CODEOWNERS @paco
+.github/branch-protection.md @paco
