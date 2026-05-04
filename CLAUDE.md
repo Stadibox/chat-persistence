@@ -12,8 +12,9 @@ Ningún agente, bot, GitHub App ni automatización puede aprobar ni mergear PRs 
 - Next.js 15 App Router + React 19 + Tailwind 4 (`apps/web`)
 - TypeScript estricto en todo (`tsconfig.base.json`)
 - Drizzle ORM + Postgres (Supabase) (`packages/db`)
-- Anthropic SDK directo, sin CLI intermediario (`packages/runtime`)
+- **`claude` CLI local** como runtime (igual que PaperClip). NO usamos `@anthropic-ai/sdk` ni `ANTHROPIC_API_KEY`. El runtime spawnea `claude --output-format stream-json` y parsea NDJSON. Auth y prompt-cache los maneja el CLI.
 - Modelos: **Opus 4.7** para meta-agentes (Cartógrafo, Coach, Reflector); **Sonnet 4.6** para agentes operativos. Decidido en `ULTRAPLAN.md` §7 Q3.
+- Hosting: server local-first (no Vercel — serverless no puede spawnear el CLI).
 
 ## Convenciones de código
 

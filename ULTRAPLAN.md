@@ -43,10 +43,10 @@ Edit desde UI ──Server Action──▶ Commit a branch ──PR auto──�
 | Diagramas | **React Flow** (organigrama y DAGs) + **Mermaid** (export estático) | React Flow es interactivo; Mermaid ya lo usa el corpus de docs |
 | ORM | **Drizzle** | Idéntico a PaperClip → reciclable |
 | DB | **Supabase Postgres + pgvector + Auth + Realtime + Storage** | Una sola pieza para auth, DB, vector, files, websockets |
-| Agent runtime | **`@anthropic-ai/sdk`** directo (con prompt caching y extended thinking) | PaperClip delega a `claude` CLI; nosotros queremos control fino del cache y streaming en la UI |
+| Agent runtime | **`claude` CLI local** (mismo patrón que PaperClip) | El CLI ya tiene auth, prompt cache, skills, MCP, streaming JSON. No queremos API key separada ni reimplementar lo que el CLI ya da gratis |
 | Repo MD sync | **Octokit** (GitHub App) | Read+write a un repo `stadi-agents` separado |
 | Auth | Supabase Auth + Google SSO (Stadibox dominio) | Bloqueo por dominio @stadibox.com |
-| Deploy | Vercel (UI+API) + Supabase Cloud | Setup mínimo; Vercel Cron para schedules tipo "weekly drift sweep" |
+| Deploy | **Server local-first** (Node + UI servidos por el mismo proceso) + Supabase Cloud para DB. Cron en host local (node-cron / windows scheduled task) | Vercel **no sirve** porque su serverless no puede spawnear el `claude` CLI. Igual que PaperClip: el server corre en tu máquina (o en un host con Claude Code instalado) y el navegador accede vía localhost / Tailscale |
 
 ### 2.2 Layout del repo
 
@@ -151,31 +151,42 @@ stadi_business_rules {           // las reglas duras (jwt shared secret, audit g
 }
 ```
 
-### 2.4 Motor de ejecución (`packages/runtime`)
+### 2.4 Motor de ejecución (`packages/runtime`) — vía `claude` CLI
 
-Replica el patrón **heartbeat** de PaperClip pero invocando Claude API directamente:
+Replica **exactamente** el adaptador `claude-local` de PaperClip (`packages/adapters/claude-local/src/server/execute.ts`). No usamos `@anthropic-ai/sdk` directo: spawneamos el binario `claude` y leemos su salida.
 
 ```
 POST /api/runs { agentId, input }
    ↓
 loadAgent(agentId)                     // DB → instructions + frontmatter
    ↓
-buildPromptCachePrefix()               // estable: system + tools + reglas Stadibox → cache_control: ephemeral
+prepareWorkspace()                     // .runs/{runId}/ con SKILL.md sintetizado del agente,
+                                       // symlinks a tools MCP permitidas, env del agente
    ↓
-gatherContext()                        // memoria relevante (vector top-k) + docs Stadibox citables
+spawn("claude", [
+  "-p", input,                         // non-interactive print mode
+  "--append-system-prompt", instructions,
+  "--allowedTools", agent.toolsAllowed.join(","),
+  "--model", agent.model,              // "claude-opus-4-7" | "claude-sonnet-4-6"
+  "--output-format", "stream-json",    // parseable, evento por línea
+  "--cwd", runWorkspace,
+])
    ↓
-anthropic.messages.stream({
-  model, system: [cached prefix],
-  messages, tools: resolveTools(agent),
-  thinking: { type: "enabled", budget_tokens: 8000 } // opcional
-})
+read stdout NDJSON line-by-line:
+  - parse Anthropic-style events (message_start, content_block_delta, tool_use, tool_result, ...)
+  - persist run_event row + push WebSocket → UI
    ↓
-on each event: persist run_event, push WebSocket → UI
+on tool_use: lo maneja el propio CLI vía MCP (configurado por workspace .mcp.json)
    ↓
-on tool_use: dispatch via MCP server local (Supabase RPC, GitHub, Slack, etc.)
-   ↓
-on finish: write memory_entries (lecciones extraídas), update run.cost
+on process exit:
+  - extract usage (tokens, cache_read, cost) del último evento
+  - write memory_entries (lecciones extraídas por el Reflector)
+  - update run row
 ```
+
+**Ventajas heredadas del CLI:** auth ya manejada por el login del usuario, prompt cache automático (TTL 5min), MCP servers configurables por workspace, hooks, skills, todo gratis.
+
+**Implicación de hosting:** el proceso Node que ejecuta esto debe estar en una máquina con Claude Code instalado y logueado. Por eso el server es local-first / self-hosted, no serverless.
 
 **Tools MCP integradas (desde día 1):**
 - `stadi.docs.search(query)` → semantic search sobre el corpus de docs
@@ -385,13 +396,13 @@ El corpus Stadibox ya define **9 agentes operativos** que vamos a importar como 
 | # | Riesgo / pregunta | Mitigación |
 |---|---|---|
 | R1 | Seguridad: el agente Coach abriendo PRs automáticos puede meter cosas locas | Todo PR del Coach con label `auto-coach`; **branch protection: ningún agente/bot puede aprobar ni mergear** — solo humanos del equipo aprobador; cap de 1 PR/día por agente |
-| R2 | Costo Anthropic explotando con runs no acotados | Quota por agente y por usuario; alertas Slack; agresivo prompt-caching del system + reglas Stadibox |
+| R2 | Costo Anthropic explotando con runs no acotados | Quota por agente y por usuario; alertas Slack; el `claude` CLI ya hace prompt-caching agresivo automáticamente. El billing va contra la subscripción de Claude Code, no API key — un costo único, no per-token |
 | R3 | Drift entre MD y DB | Hash `source_sha`; job que detecta diff y bloquea runs si el MD cambió sin sync |
 | R4 | Filtración de info sensible (las reglas de Stadibox tienen credenciales plaintext flagged) | Outputs del Cartógrafo viven solo en Supabase con RLS; nunca a Git público; igual que el corpus actual ("local-only" rule del CEO) |
 | R5 | Vertex AI safety OFF en `stadibox-tag-manager` (regla #9) | El Cartógrafo lo marca como gap crítico desde día 1; agente "compliance-watch" propuesto en F5 |
 | R6 | ¿Repo `stadi-agents` separado o subdir de este? | **Decisión:** subdir `agents/` de este repo en F0-F3; extraer a repo propio en F4 cuando estabilicemos schema |
 | Q1 | ¿Owner del proyecto/aprobador de PRs del Coach? | **Decidido:** un equipo humano aprueba. **Ningún agente puede aprobar PRs** — regla dura, enforced vía branch protection (no GitHub App con write a main; el bot del Coach abre PR pero no mergea). |
-| Q2 | ¿Hosting? Vercel + Supabase Cloud vs self-hosted | **Decidido:** Vercel + Supabase Cloud |
+| Q2 | ¿Hosting? | **Decidido:** Server **local-first** (corre en máquina con Claude Code instalado) + **Supabase Cloud** para DB. Vercel descartado: serverless no puede spawnear `claude` CLI. Para acceso remoto del equipo: Tailscale o reverse-proxy + auth en una VM con Claude Code instalado. |
 | Q3 | ¿Modelo default para agentes? | **Decidido:** Opus 4.7 para meta-agentes (Cartógrafo, Coach, Reflector); Sonnet 4.6 para los 9 operativos |
 | Q4 | ¿Integramos PaperClip directamente en vez de re-implementar? | **No:** PaperClip es Electron-flavored y monorepo grande. Tomamos *patrones* (skills MD, agent_config_revisions, run-log-store, prompt-cache) pero el código es nuevo y web-nativo |
 
@@ -433,7 +444,8 @@ El corpus Stadibox ya define **9 agentes operativos** que vamos a importar como 
 | Skill = MD + frontmatter | `skills/paperclip/SKILL.md` | `agents/**/*.md` con misma estructura |
 | Agent config revisions | `server/src/services/agents.ts:32` | Tabla `agent_config_revisions` igual |
 | Run logs append-only | `server/src/services/run-log-store.ts:30` | Tabla `run_events` + Storage NDJSON |
-| Prompt cache local | `packages/adapters/claude-local/src/server/prompt-cache.ts:24` | `.cache/prompt-cache/` con hash de contexto estable |
+| **Spawn del `claude` CLI** | `packages/adapters/claude-local/src/server/execute.ts:39` | `packages/runtime/src/spawn.ts` — `child_process.spawn("claude", [...])` con `--output-format stream-json` |
+| Prompt cache (lo hace el CLI) | el CLI lo gestiona solo bajo `~/.claude/` | No reimplementamos. Reusamos lo que el CLI cachea por workspace |
 | Heartbeat executor | `server/src/services/heartbeat.ts:100` | Endpoint `/api/runs` con misma estrategia (ventanas cortas, no daemon) |
 | Live updates por WS | `ui/src/...` (TanStack + WS) | Supabase Realtime para `run_events` |
-| Skill discovery dinámica | `packages/adapters/claude-local/src/server/skills.ts:116` | Tools MCP resueltas en runtime por capability |
+| Skill / MCP discovery | `packages/adapters/claude-local/src/server/skills.ts:116` | Inyectamos `.mcp.json` y `skills/` por workspace de run, igual que ellos |
