@@ -1,7 +1,7 @@
 # ULTRAPLAN — Super Agente Stadi
 
 **Owner:** Paco (Paco@stadibox.com)
-**Fecha:** 2026-05-03
+**Fecha:** 2026-05-04
 **Repo:** `super-agente-Stadi` (local, recién inicializado)
 
 > Hub web para crear, organizar, ejecutar y evolucionar todos los agentes de IA de Stadibox. Replica la lógica de **PaperClip** (almacén + ejecución + memoria) y se alimenta del corpus de docs ya producido por los pipelines de auditoría (`/.paperclip/.../docs`).
@@ -384,25 +384,36 @@ El corpus Stadibox ya define **9 agentes operativos** que vamos a importar como 
 
 | # | Riesgo / pregunta | Mitigación |
 |---|---|---|
-| R1 | Seguridad: el agente Coach abriendo PRs automáticos puede meter cosas locas | Todo PR del Coach con label `auto-coach`; reglas de protección de branch que requieren review humano; cap de 1 PR/día por agente |
+| R1 | Seguridad: el agente Coach abriendo PRs automáticos puede meter cosas locas | Todo PR del Coach con label `auto-coach`; **branch protection: ningún agente/bot puede aprobar ni mergear** — solo humanos del equipo aprobador; cap de 1 PR/día por agente |
 | R2 | Costo Anthropic explotando con runs no acotados | Quota por agente y por usuario; alertas Slack; agresivo prompt-caching del system + reglas Stadibox |
 | R3 | Drift entre MD y DB | Hash `source_sha`; job que detecta diff y bloquea runs si el MD cambió sin sync |
 | R4 | Filtración de info sensible (las reglas de Stadibox tienen credenciales plaintext flagged) | Outputs del Cartógrafo viven solo en Supabase con RLS; nunca a Git público; igual que el corpus actual ("local-only" rule del CEO) |
 | R5 | Vertex AI safety OFF en `stadibox-tag-manager` (regla #9) | El Cartógrafo lo marca como gap crítico desde día 1; agente "compliance-watch" propuesto en F5 |
 | R6 | ¿Repo `stadi-agents` separado o subdir de este? | **Decisión:** subdir `agents/` de este repo en F0-F3; extraer a repo propio en F4 cuando estabilicemos schema |
-| Q1 | ¿Owner del proyecto/aprobador de PRs del Coach? | Pendiente: Paco confirma |
-| Q2 | ¿Hosting? Vercel + Supabase Cloud vs self-hosted | **Default:** Vercel + Supabase Cloud. Cambiar si compliance lo exige |
-| Q3 | ¿Modelo default para agentes? | Opus 4.7 para meta-agentes (Cartógrafo, Coach), Sonnet 4.6 para los operativos |
+| Q1 | ¿Owner del proyecto/aprobador de PRs del Coach? | **Decidido:** un equipo humano aprueba. **Ningún agente puede aprobar PRs** — regla dura, enforced vía branch protection (no GitHub App con write a main; el bot del Coach abre PR pero no mergea). |
+| Q2 | ¿Hosting? Vercel + Supabase Cloud vs self-hosted | **Decidido:** Vercel + Supabase Cloud |
+| Q3 | ¿Modelo default para agentes? | **Decidido:** Opus 4.7 para meta-agentes (Cartógrafo, Coach, Reflector); Sonnet 4.6 para los 9 operativos |
 | Q4 | ¿Integramos PaperClip directamente en vez de re-implementar? | **No:** PaperClip es Electron-flavored y monorepo grande. Tomamos *patrones* (skills MD, agent_config_revisions, run-log-store, prompt-cache) pero el código es nuevo y web-nativo |
 
 ---
 
 ## 8. Próximos pasos inmediatos
 
-1. **Confirmar Q1, Q2, Q3** con Paco.
-2. **F0:** scaffolding Next + Supabase + Drizzle. Lo hago en una sesión.
+1. ~~Confirmar Q1, Q2, Q3~~ ✅ Cerrado (2026-05-04).
+2. **F0:** scaffolding Next + Supabase + Drizzle. Una sesión.
 3. **F1:** correr `seed.ts` apuntando al corpus → primera demo navegable con los 9 agentes existentes.
 4. Cuando F1 esté en verde: re-lanzar `/ultraplan` desde dentro de este repo para que el agente cloud haga **revisión cruzada** de este plan y proponga ajustes (ya tenemos git inicializado, va a funcionar).
+
+### Política de aprobación (regla dura)
+
+- Existe un **equipo aprobador humano** (a definir miembros) configurado en GitHub como CODEOWNERS / required reviewers.
+- **Ningún agente, bot, GitHub App o automatización puede aprobar ni mergear PRs.** El Coach y cualquier otro agente que escriba a Git operan con un GitHub App con scope `contents:write` y `pull_requests:write` pero sin permiso de approval ni merge.
+- Branch protection en `main` de `super-agente-Stadi` y `stadi-agents`:
+  - Required reviews: ≥1 del equipo aprobador.
+  - Dismiss stale reviews: on.
+  - Require review from CODEOWNERS: on.
+  - Restrict who can push: solo el equipo + GitHub App del Coach (sin merge).
+  - Block force pushes y deletions.
 
 ---
 
