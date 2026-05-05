@@ -18,9 +18,11 @@
     "test": "pnpm -r test",
     "corpus:sync": "tsx scripts/sync-corpus.ts",
     "agents:list": "tsx scripts/agents-list.ts",
+    "worker": "tsx scripts/worker-local.ts",
     "clean": "pnpm -r exec rm -rf node_modules dist .next .turbo && rm -rf node_modules"
   },
   "devDependencies": {
+    "@supabase/supabase-js": "^2.46.1",
     "@types/node": "^22.10.5",
     "prettier": "^3.4.2",
     "tsx": "^4.19.2",

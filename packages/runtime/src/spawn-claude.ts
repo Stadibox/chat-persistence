@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { RunEvent, RunRequest, RunResult } from "./types.js";
@@ -12,11 +13,41 @@ export interface SpawnOptions {
   signal?: AbortSignal;
 }
 
+// Resuelve el binario `claude`. En Windows el shim .cmd tiene problemas de
+// quoting con prompts largos: preferimos el .exe directo si lo encontramos.
+function resolveClaudeBin(override?: string): string {
+  if (override) return override;
+  if (process.env.CLAUDE_BIN) return process.env.CLAUDE_BIN;
+  if (process.platform === "win32") {
+    const candidates = [
+      join(
+        process.env.APPDATA ?? "",
+        "npm",
+        "node_modules",
+        "@anthropic-ai",
+        "claude-code",
+        "bin",
+        "claude.exe",
+      ),
+      join(
+        process.env.LOCALAPPDATA ?? "",
+        "Programs",
+        "claude",
+        "claude.exe",
+      ),
+    ];
+    for (const c of candidates) {
+      if (c && existsSync(c)) return c;
+    }
+  }
+  return "claude";
+}
+
 export async function spawnClaudeRun(
   req: RunRequest,
   options: SpawnOptions = {},
 ): Promise<RunResult> {
-  const bin = options.bin ?? process.env.CLAUDE_BIN ?? "claude";
+  const bin = resolveClaudeBin(options.bin);
   const startedAt = new Date().toISOString();
 
   await mkdir(req.workspaceDir, { recursive: true });
@@ -35,6 +66,7 @@ export async function spawnClaudeRun(
     req.agent.frontmatter.model,
     "--output-format",
     "stream-json",
+    "--verbose",
   ];
   if (req.agent.frontmatter.toolsAllowed.length > 0) {
     args.push("--allowedTools", req.agent.frontmatter.toolsAllowed.join(","));
@@ -49,6 +81,9 @@ export async function spawnClaudeRun(
   };
 
   const exitCode: number = await new Promise<number>((resolve, reject) => {
+    // shell:false con .exe directo evita problemas de quoting en cmd.exe
+    const useShell =
+      process.platform === "win32" && (bin.endsWith(".cmd") || bin === "claude");
     const child = spawn(bin, args, {
       cwd: req.workspaceDir,
       env: {
@@ -57,7 +92,14 @@ export async function spawnClaudeRun(
         STADI_AGENT_SLUG: req.agent.frontmatter.slug,
       },
       signal: options.signal,
+      shell: useShell,
+      windowsHide: true,
     });
+    // Cerramos stdin de inmediato: pasamos prompt vía -p, no por pipe.
+    // Sin esto el CLI espera stdin y bloquea con "no stdin data received".
+    if (child.stdin && !child.stdin.destroyed) {
+      child.stdin.end();
+    }
 
     let buffer = "";
     child.stdout.setEncoding("utf8");
@@ -126,10 +168,6 @@ interface ClaudeUsage {
   cache_creation_input_tokens?: number;
 }
 
-// Mapper de líneas del stream del CLI a nuestro RunEvent.
-// La forma exacta de los eventos puede variar entre versiones del CLI.
-// Esta función es deliberadamente tolerante: cualquier línea que no
-// reconozcamos se emite como `system` con kind=ended para no perder señal.
 function parseLine(line: string): RunEvent | null {
   let parsed: ClaudeStreamLine;
   try {
