@@ -88,8 +88,5 @@ export async function sendMessageInConversation(
   return data as SendMessageResult;
 }
 
-// Hint a la UI para arrancar el worker apenas se inserta un job.
-// No bloqueante; si falla, el worker eventualmente lo recoge en un tick.
-export function pingWorker(): void {
-  void fetch("/api/chat/worker/tick", { method: "POST" }).catch(() => {});
-}
+// (Antes había un pingWorker → /api/chat/worker/tick. Removido: el worker
+// local subscribe Realtime y dispara solo apenas hay INSERT en claude_jobs.)

@@ -21,7 +21,6 @@ import {
   listConversations,
   listJobsForConversation,
   listMessages,
-  pingWorker,
   sendMessageInConversation,
   startConversation,
 } from "@/lib/chat/repo";
@@ -170,7 +169,7 @@ export function ChatApp({ userId, userEmail }: Props) {
         setMessages([message]);
         setJobs([job]);
       }
-      pingWorker();
+      // Worker local subscribe Realtime → recoge el job solo, sin HTTP.
     } catch (e) {
       setError((e as Error).message);
     } finally {
