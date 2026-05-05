@@ -1,5 +1,7 @@
-// F0 placeholder. Schema completo se materializa en F1 según ULTRAPLAN §2.3.
-// Tablas previstas: agents, agent_config_revisions, flows, runs, run_events,
-// memory_entries, agents_catalog_snapshots, stadi_repos, stadi_business_flows,
-// stadi_business_rules.
-export {};
+export * from "./enums.js";
+export * from "./agents.js";
+export * from "./flows.js";
+export * from "./runs.js";
+export * from "./memory.js";
+export * from "./catalog.js";
+export * from "./stadi.js";

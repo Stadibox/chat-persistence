@@ -16,11 +16,14 @@
     "format": "prettier --write \"**/*.{ts,tsx,md,json,yaml,yml}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,md,json,yaml,yml}\"",
     "test": "pnpm -r test",
+    "corpus:sync": "tsx scripts/sync-corpus.ts",
+    "agents:list": "tsx scripts/agents-list.ts",
     "clean": "pnpm -r exec rm -rf node_modules dist .next .turbo && rm -rf node_modules"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
     "prettier": "^3.4.2",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   }
 }

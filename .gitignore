@@ -38,8 +38,16 @@ Thumbs.db
 
 # local artifacts
 *.local
+.runs/
 runs/
 agents-snapshots/
+
+# corpus Stadibox — local-only por regla del CEO (ULTRAPLAN §7 R4).
+# El contenido es sensible (credenciales plaintext flagged, role-permission-matrix,
+# business-rules). Lo sincronizamos a docs/ via scripts/sync-corpus.ts y NO se commitea.
+docs/*
+!docs/.gitkeep
+!docs/README.md
 
 # supabase
 supabase/.branches

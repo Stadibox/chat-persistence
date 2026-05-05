@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@stadi/db": "workspace:*",
+    "@stadi/github-sync": "workspace:*",
     "@stadi/runtime": "workspace:*",
     "@stadi/shared": "workspace:*",
     "next": "^15.1.4",
