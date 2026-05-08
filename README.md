@@ -31,14 +31,14 @@ pnpm dev
 
 ## Comandos
 
-| | |
-|---|---|
-| `pnpm dev` | Levanta `apps/web` en modo desarrollo |
-| `pnpm build` | Build de producción de todos los packages |
-| `pnpm typecheck` | TypeScript en todo el monorepo |
-| `pnpm lint` | ESLint en todo el monorepo |
-| `pnpm format` | Prettier write |
-| `pnpm test` | Tests en todos los packages |
+|                  |                                           |
+| ---------------- | ----------------------------------------- |
+| `pnpm dev`       | Levanta `apps/web` en modo desarrollo     |
+| `pnpm build`     | Build de producción de todos los packages |
+| `pnpm typecheck` | TypeScript en todo el monorepo            |
+| `pnpm lint`      | ESLint en todo el monorepo                |
+| `pnpm format`    | Prettier write                            |
+| `pnpm test`      | Tests en todos los packages               |
 
 ## Fase actual
 

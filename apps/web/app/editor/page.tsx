@@ -6,7 +6,7 @@ export default function EditorPage() {
     <>
       <Topbar title="Editor" subtitle="Edición y publicación de agentes · F3" />
       <div className="grid place-items-center px-8 py-20">
-        <div className="card max-w-md p-8 text-center fade-up">
+        <div className="card fade-up max-w-md p-8 text-center">
           <div className="mx-auto mb-3 grid h-10 w-10 place-items-center rounded-full bg-(--color-bg-elev) ring-1 ring-(--color-border)">
             <PenSquare className="h-4 w-4" />
           </div>

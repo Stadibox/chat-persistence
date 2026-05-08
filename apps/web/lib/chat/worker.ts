@@ -37,9 +37,7 @@ export async function processPendingClaudeJobs(): Promise<{
   return { processed, workerId: WORKER_ID };
 }
 
-async function claimNextJob(
-  admin: ReturnType<typeof getSupabaseAdmin>,
-): Promise<ClaudeJob | null> {
+async function claimNextJob(admin: ReturnType<typeof getSupabaseAdmin>): Promise<ClaudeJob | null> {
   const { data, error } = await admin.rpc("chat_claim_pending_claude_job", {
     p_worker_id: WORKER_ID,
   });
@@ -53,10 +51,7 @@ async function claimNextJob(
   return job as ClaudeJob;
 }
 
-async function runJob(
-  admin: ReturnType<typeof getSupabaseAdmin>,
-  job: ClaudeJob,
-): Promise<void> {
+async function runJob(admin: ReturnType<typeof getSupabaseAdmin>, job: ClaudeJob): Promise<void> {
   try {
     const turns = await loadTurns(admin, job.conversation_id);
     const responseText = await runner(turns);
@@ -81,10 +76,7 @@ async function runJob(
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("worker job failed:", job.id, message);
-    await admin
-      .from("claude_jobs")
-      .update({ status: "failed", error: message })
-      .eq("id", job.id);
+    await admin.from("claude_jobs").update({ status: "failed", error: message }).eq("id", job.id);
   }
 }
 

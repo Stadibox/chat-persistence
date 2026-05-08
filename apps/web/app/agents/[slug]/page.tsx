@@ -9,11 +9,7 @@ import { RunForm } from "./run-form";
 
 export const dynamic = "force-dynamic";
 
-export default async function AgentDetailPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function AgentDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const agent = await getAgentBySlug(slug);
   if (!agent) notFound();
@@ -30,10 +26,7 @@ export default async function AgentDetailPage({
           </>
         }
         actions={
-          <Link
-            href="/library"
-            className="text-xs text-(--color-fg-muted) hover:text-(--color-fg)"
-          >
+          <Link href="/library" className="text-xs text-(--color-fg-muted) hover:text-(--color-fg)">
             ← biblioteca
           </Link>
         }
@@ -48,7 +41,7 @@ export default async function AgentDetailPage({
 
         <aside className="space-y-4">
           <div className="card fade-up p-5" style={{ animationDelay: "40ms" }}>
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-(--color-fg-muted)">
+            <h3 className="text-xs font-semibold tracking-widest text-(--color-fg-muted) uppercase">
               Lanzar ejecución
             </h3>
             <p className="mt-1 text-xs text-(--color-fg-dim)">
@@ -61,7 +54,7 @@ export default async function AgentDetailPage({
           </div>
 
           <div className="card fade-up p-5" style={{ animationDelay: "80ms" }}>
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-(--color-fg-muted)">
+            <h3 className="text-xs font-semibold tracking-widest text-(--color-fg-muted) uppercase">
               Metadata
             </h3>
             <dl className="mt-3 space-y-2 text-xs">

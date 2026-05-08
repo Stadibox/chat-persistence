@@ -1,13 +1,5 @@
 import { sql } from "drizzle-orm";
-import {
-  index,
-  jsonb,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-  vector,
-} from "drizzle-orm/pg-core";
+import { index, jsonb, pgTable, text, timestamp, uuid, vector } from "drizzle-orm/pg-core";
 import { agentStatusEnum } from "./enums.js";
 
 // ULTRAPLAN §2.3 · espejo del MD source-of-truth en agents/**/*.md
@@ -24,11 +16,20 @@ export const agents = pgTable(
     sourceSha: text("source_sha").notNull(),
     instructions: text("instructions").notNull(),
     frontmatter: jsonb("frontmatter").notNull(),
-    capabilities: text("capabilities").array().notNull().default(sql`ARRAY[]::text[]`),
-    toolsAllowed: text("tools_allowed").array().notNull().default(sql`ARRAY[]::text[]`),
+    capabilities: text("capabilities")
+      .array()
+      .notNull()
+      .default(sql`ARRAY[]::text[]`),
+    toolsAllowed: text("tools_allowed")
+      .array()
+      .notNull()
+      .default(sql`ARRAY[]::text[]`),
     model: text("model").notNull().default("claude-sonnet-4-6"),
     status: agentStatusEnum("status").notNull().default("draft"),
-    tags: text("tags").array().notNull().default(sql`ARRAY[]::text[]`),
+    tags: text("tags")
+      .array()
+      .notNull()
+      .default(sql`ARRAY[]::text[]`),
     embedding: vector("embedding", { dimensions: 1536 }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
@@ -36,10 +37,7 @@ export const agents = pgTable(
   (t) => ({
     areaIdx: index("agents_area_idx").on(t.area),
     statusIdx: index("agents_status_idx").on(t.status),
-    embeddingIdx: index("agents_embedding_idx").using(
-      "hnsw",
-      t.embedding.op("vector_cosine_ops"),
-    ),
+    embeddingIdx: index("agents_embedding_idx").using("hnsw", t.embedding.op("vector_cosine_ops")),
   }),
 );
 

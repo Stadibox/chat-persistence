@@ -41,7 +41,7 @@ export function RunForm({ slug }: { slug: string }) {
         onChange={(e) => setInput(e.target.value)}
         rows={3}
         placeholder="Mensaje al agente · ej. 'Audita el dossier de stadibox-server'"
-        className="w-full resize-none rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm text-(--color-fg) placeholder-(--color-fg-dim) outline-none transition-colors duration-160 focus:border-(--color-accent)"
+        className="w-full resize-none rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2 text-sm text-(--color-fg) placeholder-(--color-fg-dim) transition-colors duration-160 outline-none focus:border-(--color-accent)"
       />
       <Button type="submit" disabled={pending} className="w-full">
         {pending ? (

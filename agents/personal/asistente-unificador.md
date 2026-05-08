@@ -5,7 +5,15 @@ area: personal
 owner: paco@stadibox.com
 reportsTo: null
 capabilities: [read-communications, manage-tasks, summarize-meetings]
-toolsAllowed: [google.meet.list, google.gmail.read, whatsapp.chat.read, discord.messages.list, memory.store, memory.recall]
+toolsAllowed:
+  [
+    google.meet.list,
+    google.gmail.read,
+    whatsapp.chat.read,
+    discord.messages.list,
+    memory.store,
+    memory.recall,
+  ]
 model: claude-opus-4-7
 status: active
 tags: [personal, productivity, unified]

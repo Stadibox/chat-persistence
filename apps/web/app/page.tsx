@@ -20,10 +20,7 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <Topbar
-        title="Hola, Paco"
-        subtitle="Hub de agentes de Stadibox · estado del día"
-      />
+      <Topbar title="Hola, Paco" subtitle="Hub de agentes de Stadibox · estado del día" />
 
       <section className="grid grid-cols-1 gap-3 px-8 py-6 md:grid-cols-4">
         <KpiCard label="Agentes" value={agents.length} hint={`${areas.size} áreas`} />
@@ -43,13 +40,10 @@ export default async function DashboardPage() {
       </section>
 
       <section className="grid grid-cols-1 gap-6 px-8 pb-10 lg:grid-cols-3">
-        <div className="card lg:col-span-2 fade-up">
+        <div className="card fade-up lg:col-span-2">
           <div className="flex items-center justify-between border-b border-(--color-border) px-5 py-3">
             <h2 className="text-sm font-semibold">Ejecuciones recientes</h2>
-            <Link
-              className="text-xs text-(--color-fg-muted) hover:text-(--color-fg)"
-              href="/runs"
-            >
+            <Link className="text-xs text-(--color-fg-muted) hover:text-(--color-fg)" href="/runs">
               ver todo →
             </Link>
           </div>
@@ -61,7 +55,7 @@ export default async function DashboardPage() {
                 <li key={r.id}>
                   <Link
                     href={`/runs/${r.id}`}
-                    className="flex items-center justify-between px-5 py-3 hover:bg-(--color-bg-elev) transition-colors duration-160"
+                    className="flex items-center justify-between px-5 py-3 transition-colors duration-160 hover:bg-(--color-bg-elev)"
                   >
                     <div className="flex items-center gap-3">
                       <StatusDot tone={runStatusTone(r.status)} />
@@ -122,12 +116,10 @@ function KpiCard({
 }) {
   return (
     <div className="card fade-up p-4">
-      <div className="text-xs uppercase tracking-wide text-(--color-fg-dim)">{label}</div>
+      <div className="text-xs tracking-wide text-(--color-fg-dim) uppercase">{label}</div>
       <div className="mt-1 flex items-baseline gap-2">
         <span className="text-3xl font-semibold tracking-tight">{value}</span>
-        {hint && (
-          <span className="text-xs text-(--color-fg-muted)">{hint}</span>
-        )}
+        {hint && <span className="text-xs text-(--color-fg-muted)">{hint}</span>}
       </div>
       <div className="mt-3 flex items-center gap-1">
         <Badge tone={tone}>
@@ -142,7 +134,7 @@ function KpiCard({
 function EmptyRuns() {
   return (
     <div className="px-5 py-10 text-center text-sm text-(--color-fg-muted)">
-      <div className="mx-auto grid h-10 w-10 place-items-center rounded-full bg-(--color-bg-elev) ring-1 ring-(--color-border) mb-2">
+      <div className="mx-auto mb-2 grid h-10 w-10 place-items-center rounded-full bg-(--color-bg-elev) ring-1 ring-(--color-border)">
         <Play className="h-4 w-4" />
       </div>
       Aún no has lanzado ningún agente.
@@ -171,7 +163,7 @@ function QuickLink({
     "flex items-center justify-between rounded-md border border-(--color-border) bg-(--color-bg) px-3 py-2.5 text-sm transition-colors duration-160";
   if (disabled) {
     return (
-      <div className={cls + " opacity-50 cursor-not-allowed"}>
+      <div className={cls + " cursor-not-allowed opacity-50"}>
         <span className="flex items-center gap-2.5">
           {icon}
           {label}
@@ -181,7 +173,10 @@ function QuickLink({
     );
   }
   return (
-    <Link href={href} className={cls + " hover:bg-(--color-bg-elev) hover:border-(--color-border-strong)"}>
+    <Link
+      href={href}
+      className={cls + " hover:border-(--color-border-strong) hover:bg-(--color-bg-elev)"}
+    >
       <span className="flex items-center gap-2.5">
         {icon}
         {label}

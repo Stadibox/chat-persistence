@@ -1,17 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type {
-  ChatMessage,
-  ClaudeJob,
-  Conversation,
-} from "@/lib/supabase/types";
+import type { ChatMessage, ClaudeJob, Conversation } from "@/lib/supabase/types";
 
 // =========================================================================
 // Lecturas — todas filtradas por RLS (cada user sólo ve lo suyo)
 // =========================================================================
 
-export async function listConversations(
-  client: SupabaseClient,
-): Promise<Conversation[]> {
+export async function listConversations(client: SupabaseClient): Promise<Conversation[]> {
   const { data, error } = await client
     .from("conversations")
     .select("*")

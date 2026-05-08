@@ -20,13 +20,7 @@ const AREA_EMOJI: Record<string, string> = {
   _meta: "✨",
 };
 
-export function AgentCard({
-  agent,
-  index = 0,
-}: {
-  agent: AgentSource;
-  index?: number;
-}) {
+export function AgentCard({ agent, index = 0 }: { agent: AgentSource; index?: number }) {
   const fm = agent.frontmatter;
   const areaIcon = AREA_EMOJI[fm.area] ?? "·";
   return (
@@ -37,7 +31,7 @@ export function AgentCard({
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-2">
-          <div className="grid h-8 w-8 place-items-center rounded-md bg-(--color-bg-elev) ring-1 ring-(--color-border) text-base">
+          <div className="grid h-8 w-8 place-items-center rounded-md bg-(--color-bg-elev) text-base ring-1 ring-(--color-border)">
             <span aria-hidden>{areaIcon}</span>
           </div>
           <div className="leading-tight">
@@ -59,9 +53,7 @@ export function AgentCard({
 
       <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-(--color-fg-dim)">
         <Badge tone="neutral">{fm.area}</Badge>
-        <span className="font-mono text-[10px]">
-          {fm.model.replace("claude-", "")}
-        </span>
+        <span className="font-mono text-[10px]">{fm.model.replace("claude-", "")}</span>
         {fm.tags.slice(0, 3).map((t) => (
           <span key={t} className="text-(--color-fg-dim)">
             #{t}

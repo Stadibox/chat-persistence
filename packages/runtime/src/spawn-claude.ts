@@ -29,12 +29,7 @@ function resolveClaudeBin(override?: string): string {
         "bin",
         "claude.exe",
       ),
-      join(
-        process.env.LOCALAPPDATA ?? "",
-        "Programs",
-        "claude",
-        "claude.exe",
-      ),
+      join(process.env.LOCALAPPDATA ?? "", "Programs", "claude", "claude.exe"),
     ];
     for (const c of candidates) {
       if (c && existsSync(c)) return c;
@@ -82,8 +77,7 @@ export async function spawnClaudeRun(
 
   const exitCode: number = await new Promise<number>((resolve, reject) => {
     // shell:false con .exe directo evita problemas de quoting en cmd.exe
-    const useShell =
-      process.platform === "win32" && (bin.endsWith(".cmd") || bin === "claude");
+    const useShell = process.platform === "win32" && (bin.endsWith(".cmd") || bin === "claude");
     const child = spawn(bin, args, {
       cwd: req.workspaceDir,
       env: {

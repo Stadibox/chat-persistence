@@ -30,10 +30,7 @@ export function parseAgentMarkdown(rawContent: string, sourcePath: string): Pars
   }
 
   const instructions = parsed.content.trim();
-  const sourceSha = createHash("sha256")
-    .update(rawContent, "utf8")
-    .digest("hex")
-    .slice(0, 16);
+  const sourceSha = createHash("sha256").update(rawContent, "utf8").digest("hex").slice(0, 16);
 
   return {
     ok: true,
