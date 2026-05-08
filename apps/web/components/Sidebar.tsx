@@ -26,7 +26,7 @@ const NAV = [
 export function Sidebar() {
   const pathname = usePathname();
   return (
-    <aside className="sticky top-0 flex h-screen w-60 shrink-0 flex-col border-r border-(--color-border) bg-(--color-bg-elev) px-3 py-5">
+    <aside className="sticky top-0 hidden lg:flex h-screen w-60 shrink-0 flex-col border-r border-(--color-border) bg-(--color-bg-elev) px-3 py-5">
       <Link href="/" className="mb-8 flex items-center gap-2 px-2">
         <div className="grid h-8 w-8 place-items-center rounded-lg bg-(--color-accent) text-(--color-accent-fg)">
           <span className="text-sm font-bold">S</span>

@@ -10,7 +10,7 @@ export function Topbar({
   actions?: ReactNode;
 }) {
   return (
-    <header className="flex items-end justify-between gap-4 border-b border-(--color-border) px-8 py-6">
+    <header className="flex items-end justify-between gap-4 border-b border-(--color-border) px-4 py-4 md:px-8 md:py-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
         {subtitle && (

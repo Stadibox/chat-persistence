@@ -201,7 +201,7 @@ export function ChatApp({ userId, userEmail }: Props) {
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
       <aside
-        className="card flex flex-col overflow-hidden"
+        className="card hidden lg:flex flex-col overflow-hidden"
         style={{ height: "calc(100vh - 180px)" }}
       >
         <div className="flex items-center justify-between border-b border-(--color-border) bg-(--color-bg-elev) px-3 py-2.5">
@@ -254,8 +254,7 @@ export function ChatApp({ userId, userEmail }: Props) {
       </aside>
 
       <div
-        className="card flex flex-col overflow-hidden"
-        style={{ height: "calc(100vh - 180px)" }}
+        className="card flex flex-col overflow-hidden h-[calc(100vh-140px)] lg:h-[calc(100vh-180px)]"
       >
         <div className="flex items-center justify-between border-b border-(--color-border) bg-(--color-bg-elev) px-4 py-2.5">
           <div className="flex items-center gap-2">
