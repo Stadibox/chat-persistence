@@ -6,8 +6,7 @@
 //   pnpm tsx scripts/worker.ts
 //   WORKER_TICK_URL=http://localhost:3100/api/chat/worker/tick pnpm tsx scripts/worker.ts
 
-const URL =
-  process.env.WORKER_TICK_URL ?? "http://localhost:3000/api/chat/worker/tick";
+const URL = process.env.WORKER_TICK_URL ?? "http://localhost:3000/api/chat/worker/tick";
 const POLL = Number(process.env.WORKER_POLL_MS ?? 2000);
 
 let stopping = false;

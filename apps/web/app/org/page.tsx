@@ -12,22 +12,27 @@ export default async function OrgPage() {
     (acc[a.frontmatter.area] ??= []).push(a);
     return acc;
   }, {});
-  const order = ["_meta", "tech", "compliance", "qa", "security", "producto", "ventas", "finanzas", "operaciones"];
-  const sorted = Object.keys(byArea).sort(
-    (a, b) => order.indexOf(a) - order.indexOf(b),
-  );
+  const order = [
+    "_meta",
+    "tech",
+    "compliance",
+    "qa",
+    "security",
+    "producto",
+    "ventas",
+    "finanzas",
+    "operaciones",
+  ];
+  const sorted = Object.keys(byArea).sort((a, b) => order.indexOf(a) - order.indexOf(b));
 
   return (
     <>
-      <Topbar
-        title="Organigrama"
-        subtitle="Vista provisional · F4 trae React Flow interactivo"
-      />
+      <Topbar title="Organigrama" subtitle="Vista provisional · F4 trae React Flow interactivo" />
 
       <div className="px-8 py-10">
         <div className="mx-auto max-w-3xl">
-          <div className="card mx-auto w-fit fade-up px-6 py-3 text-center">
-            <div className="text-[11px] font-medium uppercase tracking-widest text-(--color-fg-muted)">
+          <div className="card fade-up mx-auto w-fit px-6 py-3 text-center">
+            <div className="text-[11px] font-medium tracking-widest text-(--color-fg-muted) uppercase">
               Stadibox
             </div>
             <div className="text-lg font-semibold">Super Agente Hub</div>

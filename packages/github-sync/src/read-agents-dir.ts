@@ -16,11 +16,7 @@ export async function readAgentsDir(rootDir: string): Promise<ReadAgentsResult> 
   return result;
 }
 
-async function walk(
-  dir: string,
-  rootDir: string,
-  out: ReadAgentsResult,
-): Promise<void> {
+async function walk(dir: string, rootDir: string, out: ReadAgentsResult): Promise<void> {
   let entries;
   try {
     entries = await readdir(dir, { withFileTypes: true });

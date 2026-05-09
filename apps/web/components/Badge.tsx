@@ -11,13 +11,7 @@ const TONE: Record<Tone, string> = {
   danger: "bg-[oklch(0.66_0.22_25/0.12)] text-(--color-danger) ring-[oklch(0.66_0.22_25/0.3)]",
 };
 
-export function Badge({
-  tone = "neutral",
-  children,
-}: {
-  tone?: Tone;
-  children: ReactNode;
-}) {
+export function Badge({ tone = "neutral", children }: { tone?: Tone; children: ReactNode }) {
   return (
     <span
       className={clsx(

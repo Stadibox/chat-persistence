@@ -25,7 +25,9 @@ if (existsSync(envPath)) {
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!SUPABASE_URL || !SERVICE_ROLE) {
-  console.error("Faltan NEXT_PUBLIC_SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY en apps/web/.env.local");
+  console.error(
+    "Faltan NEXT_PUBLIC_SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY en apps/web/.env.local",
+  );
   process.exit(1);
 }
 
@@ -64,17 +66,13 @@ interface ClaudeOutput {
   exitCode: number;
 }
 
-async function runClaudeCLI(
-  prompt: string,
-  sessionId?: string | null,
-): Promise<ClaudeOutput> {
+async function runClaudeCLI(prompt: string, sessionId?: string | null): Promise<ClaudeOutput> {
   const bin = resolveClaudeBin();
   const args = ["-p", prompt, "--output-format", "stream-json", "--verbose"];
   if (sessionId) args.push("--resume", sessionId);
 
   return new Promise<ClaudeOutput>((resolveOut, reject) => {
-    const useShell =
-      process.platform === "win32" && (bin.endsWith(".cmd") || bin === "claude");
+    const useShell = process.platform === "win32" && (bin.endsWith(".cmd") || bin === "claude");
     const child = spawn(bin, args, { shell: useShell, windowsHide: true });
     if (child.stdin && !child.stdin.destroyed) child.stdin.end();
 
@@ -105,11 +103,7 @@ async function runClaudeCLI(
           const msg = obj.message as { content?: unknown } | undefined;
           if (Array.isArray(msg?.content)) {
             for (const c of msg.content) {
-              if (
-                c &&
-                typeof c === "object" &&
-                (c as { type?: string }).type === "text"
-              ) {
+              if (c && typeof c === "object" && (c as { type?: string }).type === "text") {
                 const t = (c as { text?: string }).text;
                 if (typeof t === "string") textOut += t;
               }
@@ -191,8 +185,7 @@ async function loadContext(
   return {
     prompt: lastUser?.content ?? "",
     sessionId: lastAssistantWithSession
-      ? ((lastAssistantWithSession.metadata as Record<string, unknown>)
-          .claude_session_id as string)
+      ? ((lastAssistantWithSession.metadata as Record<string, unknown>).claude_session_id as string)
       : null,
   };
 }
@@ -237,10 +230,7 @@ async function processJob(job: ClaudeJob): Promise<void> {
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error(`[${WORKER_ID}] job=${job.id.slice(0, 8)} failed:`, msg);
-    await admin
-      .from("claude_jobs")
-      .update({ status: "failed", error: msg })
-      .eq("id", job.id);
+    await admin.from("claude_jobs").update({ status: "failed", error: msg }).eq("id", job.id);
   }
 }
 
@@ -268,13 +258,9 @@ async function main() {
 
   const channel = admin
     .channel(`worker:${WORKER_ID}`)
-    .on(
-      "postgres_changes",
-      { event: "INSERT", schema: "public", table: "claude_jobs" },
-      () => {
-        void drain();
-      },
-    )
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "claude_jobs" }, () => {
+      void drain();
+    })
     .subscribe((status) => {
       console.log(`[${WORKER_ID}] realtime: ${status}`);
     });

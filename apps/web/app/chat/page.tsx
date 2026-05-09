@@ -16,17 +16,11 @@ export default async function ChatPage() {
       <Topbar
         title="Chat"
         subtitle={
-          user
-            ? `Conectado como ${user.email}`
-            : "Conversación persistida en Supabase + claude CLI"
+          user ? `Conectado como ${user.email}` : "Conversación persistida en Supabase + claude CLI"
         }
       />
-      <div className="px-8 py-6">
-        {user ? (
-          <ChatApp userId={user.id} userEmail={user.email ?? ""} />
-        ) : (
-          <AuthGate />
-        )}
+      <div className="px-4 py-4 md:px-8 md:py-6">
+        {user ? <ChatApp userId={user.id} userEmail={user.email ?? ""} /> : <AuthGate />}
       </div>
     </>
   );

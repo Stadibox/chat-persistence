@@ -1,12 +1,5 @@
 import { sql } from "drizzle-orm";
-import {
-  boolean,
-  index,
-  integer,
-  pgTable,
-  text,
-  timestamp,
-} from "drizzle-orm/pg-core";
+import { boolean, index, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { ruleCriticalityEnum } from "./enums.js";
 
 // Espejo de repository-index.md del corpus Stadibox.
@@ -38,7 +31,10 @@ export const stadiBusinessFlows = pgTable(
     area: text("area"),
     status: text("status"),
     drafted: boolean("drafted").notNull().default(false),
-    reposInvolved: text("repos_involved").array().notNull().default(sql`ARRAY[]::text[]`),
+    reposInvolved: text("repos_involved")
+      .array()
+      .notNull()
+      .default(sql`ARRAY[]::text[]`),
     sourcePath: text("source_path"),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

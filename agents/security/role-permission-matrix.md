@@ -17,7 +17,7 @@ Extraer la matriz de permisos directamente del **source code** (resolvers, guard
 
 # Inputs
 
-- Acceso de lectura a repos (api-gateway, users-microservice, *_microservice, monolith).
+- Acceso de lectura a repos (api-gateway, users-microservice, \*\_microservice, monolith).
 - `docs/_template/role-permission-matrix.md` (columnas locked: `role | resource | action | allow/deny | enforcing-repo | enforcing-location | confidence`).
 
 # Outputs

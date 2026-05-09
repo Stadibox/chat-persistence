@@ -12,7 +12,17 @@ export default async function LibraryPage() {
     (acc[k] ??= []).push(a);
     return acc;
   }, {});
-  const areaOrder = ["_meta", "tech", "compliance", "qa", "security", "producto", "ventas", "finanzas", "operaciones"];
+  const areaOrder = [
+    "_meta",
+    "tech",
+    "compliance",
+    "qa",
+    "security",
+    "producto",
+    "ventas",
+    "finanzas",
+    "operaciones",
+  ];
   const sortedAreas = Object.keys(byArea).sort((a, b) => {
     const ia = areaOrder.indexOf(a);
     const ib = areaOrder.indexOf(b);
@@ -21,10 +31,7 @@ export default async function LibraryPage() {
 
   return (
     <>
-      <Topbar
-        title="Biblioteca"
-        subtitle={`${agents.length} agentes · agrupados por área`}
-      />
+      <Topbar title="Biblioteca" subtitle={`${agents.length} agentes · agrupados por área`} />
 
       {failures.length > 0 && (
         <div className="mx-8 mt-6 rounded-lg border border-(--color-danger) bg-[oklch(0.66_0.22_25/0.05)] p-4 text-sm">
@@ -47,7 +54,7 @@ export default async function LibraryPage() {
           return (
             <section key={area}>
               <div className="mb-3 flex items-baseline gap-3">
-                <h2 className="text-xs font-semibold uppercase tracking-widest text-(--color-fg-muted)">
+                <h2 className="text-xs font-semibold tracking-widest text-(--color-fg-muted) uppercase">
                   {area}
                 </h2>
                 <span className="text-[11px] text-(--color-fg-dim)">
@@ -56,11 +63,7 @@ export default async function LibraryPage() {
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {items.map((a, i) => (
-                  <AgentCard
-                    key={a.frontmatter.slug}
-                    agent={a}
-                    index={areaIdx * 4 + i}
-                  />
+                  <AgentCard key={a.frontmatter.slug} agent={a} index={areaIdx * 4 + i} />
                 ))}
               </div>
             </section>

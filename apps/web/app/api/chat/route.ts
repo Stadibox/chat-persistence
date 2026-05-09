@@ -19,12 +19,7 @@ function resolveClaudeBin(): string {
         "bin",
         "claude.exe",
       ),
-      join(
-        process.env.LOCALAPPDATA ?? "",
-        "Programs",
-        "claude",
-        "claude.exe",
-      ),
+      join(process.env.LOCALAPPDATA ?? "", "Programs", "claude", "claude.exe"),
     ];
     for (const c of candidates) {
       if (c && existsSync(c)) return c;
@@ -66,8 +61,7 @@ export async function POST(req: Request) {
         }
       };
 
-      const useShell =
-        process.platform === "win32" && (bin.endsWith(".cmd") || bin === "claude");
+      const useShell = process.platform === "win32" && (bin.endsWith(".cmd") || bin === "claude");
       const child = spawn(bin, args, {
         shell: useShell,
         windowsHide: true,

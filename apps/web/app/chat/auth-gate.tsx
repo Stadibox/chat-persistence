@@ -44,7 +44,7 @@ export function AuthGate() {
   }
 
   return (
-    <form onSubmit={submit} className="card mx-auto max-w-md p-6 fade-up">
+    <form onSubmit={submit} className="card fade-up mx-auto max-w-md p-6">
       <h2 className="text-base font-semibold">
         {mode === "signin" ? "Iniciar sesión" : "Crear cuenta"}
       </h2>
@@ -88,9 +88,7 @@ export function AuthGate() {
           }}
           className="w-full text-xs text-(--color-fg-muted) hover:text-(--color-fg)"
         >
-          {mode === "signin"
-            ? "¿No tienes cuenta? Crear una"
-            : "¿Ya tienes cuenta? Inicia sesión"}
+          {mode === "signin" ? "¿No tienes cuenta? Crear una" : "¿Ya tienes cuenta? Inicia sesión"}
         </button>
         {error && <p className="text-xs text-(--color-danger)">{error}</p>}
         {info && <p className="text-xs text-(--color-success)">{info}</p>}

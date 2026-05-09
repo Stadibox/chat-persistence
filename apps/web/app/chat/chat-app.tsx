@@ -1,21 +1,7 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import {
-  Loader2,
-  LogOut,
-  MessageSquare,
-  Plus,
-  Send,
-  Sparkles,
-  User,
-} from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Loader2, LogOut, MessageSquare, Plus, Send, Sparkles, User } from "lucide-react";
 import { getSupabaseBrowser } from "@/lib/supabase/client";
 import {
   listConversations,
@@ -24,11 +10,7 @@ import {
   sendMessageInConversation,
   startConversation,
 } from "@/lib/chat/repo";
-import type {
-  ChatMessage,
-  ClaudeJob,
-  Conversation,
-} from "@/lib/supabase/types";
+import type { ChatMessage, ClaudeJob, Conversation } from "@/lib/supabase/types";
 
 interface Props {
   userId: string;
@@ -61,10 +43,7 @@ export function ChatApp({ userId, userEmail }: Props) {
       return;
     }
     let cancelled = false;
-    Promise.all([
-      listMessages(supabase, activeId),
-      listJobsForConversation(supabase, activeId),
-    ])
+    Promise.all([listMessages(supabase, activeId), listJobsForConversation(supabase, activeId)])
       .then(([m, j]) => {
         if (cancelled) return;
         setMessages(m);
@@ -109,9 +88,7 @@ export function ChatApp({ userId, userEmail }: Props) {
         },
         (payload) => {
           const j = payload.new as ClaudeJob;
-          setJobs((prev) =>
-            prev.some((x) => x.id === j.id) ? prev : [j, ...prev],
-          );
+          setJobs((prev) => (prev.some((x) => x.id === j.id) ? prev : [j, ...prev]));
         },
       )
       .on(
@@ -148,11 +125,7 @@ export function ChatApp({ userId, userEmail }: Props) {
     setSending(true);
     try {
       if (activeId) {
-        const { message, job } = await sendMessageInConversation(
-          supabase,
-          activeId,
-          text,
-        );
+        const { message, job } = await sendMessageInConversation(supabase, activeId, text);
         setMessages((prev) =>
           prev.some((x) => x.id === message.id)
             ? prev
@@ -160,10 +133,7 @@ export function ChatApp({ userId, userEmail }: Props) {
         );
         setJobs((prev) => (prev.some((x) => x.id === job.id) ? prev : [job, ...prev]));
       } else {
-        const { conversation, message, job } = await startConversation(
-          supabase,
-          text,
-        );
+        const { conversation, message, job } = await startConversation(supabase, text);
         setConversations((prev) => [conversation, ...prev]);
         setActiveId(conversation.id);
         setMessages([message]);
@@ -201,7 +171,7 @@ export function ChatApp({ userId, userEmail }: Props) {
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
       <aside
-        className="card flex flex-col overflow-hidden"
+        className="card hidden flex-col overflow-hidden lg:flex"
         style={{ height: "calc(100vh - 180px)" }}
       >
         <div className="flex items-center justify-between border-b border-(--color-border) bg-(--color-bg-elev) px-3 py-2.5">
@@ -230,9 +200,7 @@ export function ChatApp({ userId, userEmail }: Props) {
                   }`}
                 >
                   <MessageSquare className="mt-0.5 h-3.5 w-3.5 shrink-0 text-(--color-fg-dim)" />
-                  <span className="line-clamp-2 flex-1">
-                    {c.title ?? "(sin título)"}
-                  </span>
+                  <span className="line-clamp-2 flex-1">{c.title ?? "(sin título)"}</span>
                 </button>
               </li>
             ))
@@ -253,28 +221,21 @@ export function ChatApp({ userId, userEmail }: Props) {
         </div>
       </aside>
 
-      <div
-        className="card flex flex-col overflow-hidden"
-        style={{ height: "calc(100vh - 180px)" }}
-      >
+      <div className="card flex h-[calc(100vh-140px)] flex-col overflow-hidden lg:h-[calc(100vh-180px)]">
         <div className="flex items-center justify-between border-b border-(--color-border) bg-(--color-bg-elev) px-4 py-2.5">
           <div className="flex items-center gap-2">
             <Sparkles className="h-3.5 w-3.5 text-(--color-accent)" />
             <span className="text-xs font-medium">claude (worker)</span>
             {latestJob && (
-              <span className="text-[11px] text-(--color-fg-dim)">
-                · job {latestJob.status}
-              </span>
+              <span className="text-[11px] text-(--color-fg-dim)">· job {latestJob.status}</span>
             )}
           </div>
           {!activeId && (
-            <span className="text-[11px] text-(--color-fg-dim)">
-              empieza escribiendo abajo
-            </span>
+            <span className="text-[11px] text-(--color-fg-dim)">empieza escribiendo abajo</span>
           )}
         </div>
 
-        <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+        <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
           {messages.length === 0 ? (
             <div className="flex h-full items-center justify-center text-sm text-(--color-fg-dim)">
               <div className="text-center">
@@ -289,8 +250,9 @@ export function ChatApp({ userId, userEmail }: Props) {
           ) : (
             messages.map((m) => <MessageRow key={m.id} message={m} />)
           )}
-          {(latestJob?.status === "pending" ||
-            latestJob?.status === "running") && <PendingRow status={latestJob.status} />}
+          {(latestJob?.status === "pending" || latestJob?.status === "running") && (
+            <PendingRow status={latestJob.status} />
+          )}
           {latestJob?.status === "failed" && (
             <ErrorRow message={latestJob.error ?? "(sin detalle)"} />
           )}
@@ -339,20 +301,18 @@ function MessageRow({ message }: { message: ChatMessage }) {
       <div
         className={`grid h-7 w-7 shrink-0 place-items-center rounded-full ring-1 ring-inset ${
           isUser
-            ? "bg-(--color-accent-soft) ring-(--color-accent)/30 text-(--color-accent)"
-            : "bg-(--color-bg-elev) ring-(--color-border) text-(--color-fg-muted)"
+            ? "bg-(--color-accent-soft) text-(--color-accent) ring-(--color-accent)/30"
+            : "bg-(--color-bg-elev) text-(--color-fg-muted) ring-(--color-border)"
         }`}
       >
         {isUser ? <User className="h-3.5 w-3.5" /> : <Sparkles className="h-3.5 w-3.5" />}
       </div>
-      <div
-        className={`flex max-w-[80%] flex-col gap-1.5 ${isUser ? "items-end" : "items-start"}`}
-      >
+      <div className={`flex max-w-[80%] flex-col gap-1.5 ${isUser ? "items-end" : "items-start"}`}>
         <div
           className={`rounded-lg px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap ${
             isUser
               ? "bg-(--color-accent) text-(--color-accent-fg)"
-              : "bg-(--color-bg-elev) text-(--color-fg) ring-1 ring-inset ring-(--color-border)"
+              : "bg-(--color-bg-elev) text-(--color-fg) ring-1 ring-(--color-border) ring-inset"
           }`}
         >
           {message.content}
@@ -373,9 +333,9 @@ function PendingRow({ status }: { status: ClaudeJob["status"] }) {
 
 function ErrorRow({ message }: { message: string }) {
   return (
-    <div className="fade-up rounded-md ring-1 ring-inset ring-(--color-danger)/30 bg-[oklch(0.66_0.22_25/0.05)] p-3 text-xs text-(--color-danger)">
+    <div className="fade-up rounded-md bg-[oklch(0.66_0.22_25/0.05)] p-3 text-xs text-(--color-danger) ring-1 ring-(--color-danger)/30 ring-inset">
       <div className="font-medium">job falló</div>
-      <pre className="mt-1 whitespace-pre-wrap font-mono text-[11px]">{message}</pre>
+      <pre className="mt-1 font-mono text-[11px] whitespace-pre-wrap">{message}</pre>
     </div>
   );
 }

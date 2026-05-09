@@ -10,11 +10,7 @@ export function Button({
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant }) {
   return (
     <button
-      className={clsx(
-        "btn",
-        variant === "primary" ? "btn-primary" : "btn-ghost",
-        className,
-      )}
+      className={clsx("btn", variant === "primary" ? "btn-primary" : "btn-ghost", className)}
       {...props}
     />
   );
