@@ -13,6 +13,7 @@ const NAV = [
   { href: "/insights", label: "Insights", icon: Sparkles },
   { href: "/editor", label: "Editor", icon: PenSquare },
   { href: "/chat", label: "Chat", icon: MessageSquare },
+  { href: "/kanban", label: "Kanban", icon: Sparkles },
 ] as const;
 
 export function Sidebar() {

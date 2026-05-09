@@ -5,3 +5,4 @@ export * from "./runs.js";
 export * from "./memory.js";
 export * from "./catalog.js";
 export * from "./stadi.js";
+export * from "./tasks.js";
